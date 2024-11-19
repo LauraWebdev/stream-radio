@@ -11,24 +11,25 @@ const rtmpUrl = getConfig('stream.url', {
     key: getConfig('stream.key')
 });
 
+let currentMetadata;
+
 async function startStream() {
     const audioFile = getRandomAudioFile(audioFolder);
     console.log('AudioFile: ' + audioFile);
 
-    let audioMetadata;
     try {
-        audioMetadata = await getAudioMetadata(audioFile);
-        console.log('Duration: ' + audioMetadata.duration);
-        console.log('Title: ' + audioMetadata.title);
-        console.log('Artist: ' + audioMetadata.artist);
+        currentMetadata = await getAudioMetadata(audioFile);
+        console.log('Duration: ' + currentMetadata.duration);
+        console.log('Title: ' + currentMetadata.title);
+        console.log('Artist: ' + currentMetadata.artist);
     } catch(err) {
         console.error('Error fetching audio metadata ' + err.message);
         startStream();
     }
 
     let textOverlay = getTextOverlayFilters({
-        title: audioMetadata.title,
-        artist: audioMetadata.artist,
+        title: currentMetadata.title,
+        artist: currentMetadata.artist,
     });
 
     // Start Encoding
@@ -43,7 +44,7 @@ async function startStream() {
             '-map 1:a:0',
 
             `-filter:v fps=${getConfig('stream.fps')}`,
-            `-t ${audioMetadata.duration}`,	// Use audio duration, either cuts off or loops video
+            `-t ${currentMetadata.duration}`,	// Use audio duration, either cuts off or loops video
 
             // Encoding
             '-c:v libx264',
@@ -74,6 +75,7 @@ async function startStream() {
             console.error('ffmpeg error: ' + err.message);
         })
         .on('progress', (progress) => {
+            currentMetadata.percent = progress.percent || 0;
             console.log(`ffmpeg progress: Time: ${progress.timemark} | FPS: ${progress.currentFps} | Frame: ${progress.frames} | Speed: ${progress.currentKbps || '0'}`);
         })
         .on('end', () => {
@@ -83,6 +85,11 @@ async function startStream() {
         .run();
 }
 
+function getCurrentMetadata() {
+    return currentMetadata;
+}
+
 module.exports = {
     startStream,
+    getCurrentMetadata,
 }
