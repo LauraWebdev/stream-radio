@@ -3,7 +3,7 @@ const {currentMetadata, getCurrentMetadata} = require("./stream");
 const {getConfig} = require("./configUtils");
 
 let api = null;
-const port = process.env.PORT || 3000;
+const port = getConfig('api.port') || 3000;
 
 function authMiddleware(req, res, next) {
     const queryKey = req.query.key;

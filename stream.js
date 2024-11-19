@@ -75,7 +75,7 @@ async function startStream() {
             console.error('ffmpeg error: ' + err.message);
         })
         .on('progress', (progress) => {
-            currentMetadata.percent = progress.percent || 0;
+            currentMetadata.current = progress.percent || 0;
             console.log(`ffmpeg progress: Time: ${progress.timemark} | FPS: ${progress.currentFps} | Frame: ${progress.frames} | Speed: ${progress.currentKbps || '0'}`);
         })
         .on('end', () => {
