@@ -7,7 +7,7 @@ function getTextOverlayFilters(variables = []) {
     return texts.map(text => {
         let output = "";
 
-        output += `drawtext=text=${sanitizeForFfmpeg(text.format)}`;
+        output += `drawtext=text='${sanitizeForFfmpeg(text.format)}'`;
         output += `:fontcolor=${text.font.color}@${text.font.opacity}`;
         output += `:fontsize=${text.font.size}`;
         output += `:x=${text.x}`;

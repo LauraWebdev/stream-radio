@@ -1,11 +1,19 @@
 function sanitizeForFfmpeg(text) {
-    return text
-        .replaceAll(/\)/g, '\\)')
-        .replaceAll(/\(/g, '\\(')
-        .replaceAll(/\./g, '\\.')
-        .replaceAll(/:/g, '\\:')
-        .replaceAll(/'/g, "\\'")
-        .replaceAll(/"/g, '\\"');
+    const replacements = {
+        "'": "\\'",
+        '\\': '\\\\',
+        ':': '\\:',
+        '!': '\\!',
+        '%': '\\%',
+        '{': '\\{',
+        '}': '\\}',
+        '(': '\\(',
+        ')': '\\)',
+        ',': '\\,',
+        '.': '\\.',
+    };
+
+    return text.replace(/['\\:!%{}(),.]/g, match => replacements[match]);
 }
 
 module.exports = {

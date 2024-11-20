@@ -1,5 +1,5 @@
 const express = require('express');
-const {currentMetadata, getCurrentMetadata} = require("./stream");
+const {getCurrentState} = require("./stream");
 const {getConfig} = require("./configUtils");
 
 let api = null;
@@ -26,10 +26,11 @@ function startApi() {
     });
 
     api.get('/current', (req, res) => {
-        let currentMetadata = getCurrentMetadata();
+        let currentState = getCurrentState();
         res.json({
-            playing: !!currentMetadata,
-            ...currentMetadata,
+            playing: currentState.playing,
+            ...currentState.metadata,
+            current: currentState.current,
         });
     });
 

@@ -11,29 +11,33 @@ const rtmpUrl = getConfig('stream.url', {
     key: getConfig('stream.key')
 });
 
-let currentMetadata;
+let streamState = {
+    playing: false,
+    metadata: {},
+    command: null,
+}
 
 async function startStream() {
     const audioFile = getRandomAudioFile(audioFolder);
     console.log('AudioFile: ' + audioFile);
 
     try {
-        currentMetadata = await getAudioMetadata(audioFile);
-        console.log('Duration: ' + currentMetadata.duration);
-        console.log('Title: ' + currentMetadata.title);
-        console.log('Artist: ' + currentMetadata.artist);
+        streamState.metadata = await getAudioMetadata(audioFile);
+        console.log('Duration: ' + streamState.metadata.duration);
+        console.log('Title: ' + streamState.metadata.title);
+        console.log('Artist: ' + streamState.metadata.artist);
     } catch(err) {
         console.error('Error fetching audio metadata ' + err.message);
         startStream();
     }
 
     let textOverlay = getTextOverlayFilters({
-        title: currentMetadata.title,
-        artist: currentMetadata.artist,
+        title: streamState.metadata.title,
+        artist: streamState.metadata.artist,
     });
 
     // Start Encoding
-    ffmpeg()
+    streamState.command = ffmpeg()
         .input(videoFile)
         .inputOptions('-stream_loop -1')	// Loop
         .inputOptions('-re')				// Realtime, use FPS from output filter
@@ -44,7 +48,7 @@ async function startStream() {
             '-map 1:a:0',
 
             `-filter:v fps=${getConfig('stream.fps')}`,
-            `-t ${currentMetadata.duration}`,	// Use audio duration, either cuts off or loops video
+            `-t ${streamState.metadata.duration}`,	// Use audio duration, either cuts off or loops video
 
             // Encoding
             '-c:v libx264',
@@ -70,26 +74,42 @@ async function startStream() {
         .on('start', (cmd) => {
             console.log('-------------------');
             console.log('ffmpeg start: ' + cmd);
+            streamState.playing = true;
         })
         .on('error', (err) => {
             console.error('ffmpeg error: ' + err.message);
+            streamState.playing = false;
+            streamState.metadata = {};
+            streamState.command = null;
         })
         .on('progress', (progress) => {
-            currentMetadata.current = progress.percent || 0;
+            streamState.current = parseTimemark(progress.timemark) || 0;
             console.log(`ffmpeg progress: Time: ${progress.timemark} | FPS: ${progress.currentFps} | Frame: ${progress.frames} | Speed: ${progress.currentKbps || '0'}`);
         })
         .on('end', () => {
             console.log('ffmpeg end');
+            streamState.playing = false;
+            streamState.metadata = {};
+            streamState.command = null;
             startStream();
         })
         .run();
 }
 
-function getCurrentMetadata() {
-    return currentMetadata;
+function getCurrentState() {
+    return streamState;
+}
+
+function parseTimemark(timemark) {
+    const timeParts = timemark.split(':');
+    if (timeParts.length !== 3) return 0;
+
+    const [hours, minutes, seconds] = timeParts.map(parseFloat);
+
+    return (hours * 3600) + (minutes * 60) + seconds;
 }
 
 module.exports = {
     startStream,
-    getCurrentMetadata,
+    getCurrentState,
 }
