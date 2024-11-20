@@ -1,4 +1,4 @@
-const config = require('./radio/config.json');
+const config = require('../radio/config.json');
 
 function getConfig(path, variables = {}) {
     const segments = path.split('.');

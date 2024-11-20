@@ -5,8 +5,8 @@ const path = require("path");
 const {sanitizeForFfmpeg} = require("./ffmpegUtils");
 const {getTextOverlayFilters} = require("./textOverlay");
 
-const audioFolder = path.resolve(__dirname, `./${getConfig('paths.audio')}`);
-const videoFile = `./${getConfig('paths.video')}/video.mp4`;
+const audioFolder = path.resolve(__dirname, `${getConfig('paths.audio')}`);
+const videoFile = path.resolve(__dirname, `${getConfig('paths.video')}/video.mp4`);
 const rtmpUrl = getConfig('stream.url', {
     key: getConfig('stream.key')
 });

@@ -105,8 +105,8 @@ Returns information about the current song
     "audiosamplerate": 44100
   },
   "paths": {
-    "audio": "./radio/audio",
-    "video": "./radio/video"
+    "audio": "../radio/audio",
+    "video": "../radio/video"
   },
   "overlay": {
     "texts": [
@@ -159,7 +159,7 @@ Returns information about the current song
   },
   "intermission": {
     "enabled": false,
-    "path": "./radio/intermission.mp4",
+    "path": "../radio/intermission.mp4",
     "frequency": 5
   },
   "api": {
