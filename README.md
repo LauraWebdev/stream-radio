@@ -20,6 +20,8 @@ Main inspiration for this project comes from torch2424's [live-stream-radio](htt
 - [x] Basic CLI status output
 - [ ] Image overlays
 - [ ] Repetition guardrails
+- [ ] Logging options (verbosity, logfile)
+- [ ] Custom fonts
 - JSON API
   - [X] Auth
   - [X] Current Song Info
